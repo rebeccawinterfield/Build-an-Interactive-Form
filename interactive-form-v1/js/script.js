@@ -4,23 +4,22 @@ let b = 0;
 let c = 0;
 let d = 0;
 let e = 0;
-let x = 0;
-let y = 0;
-let z = 0;
+let f = 0;
+let g = 0;
+let h = 0;
+let j = 0;
 
-//credit card variables
-var $creditNumber = $('#cc-num').val();
-var $creditNumberLength = $('#cc-num').val().length;
-var $creditZip = $('#zip').val();
-var $creditZipLength = $('#zip').val().length;
-var $creditCvv = $('#cvv').val();
-var $creditCvvLength = $('#cvv').val().length;
+const name = $('#name');
+const email = $('#mail');
+const card = $('#cc-num');
+
 
 //function to check if email is in a valid format
 function validateEmail(emailValue) {
     var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(emailValue.toLowerCase());
 }
+
 
 //cursor appears in first field upon load
 $(':input:enabled:visible:first').focus();
@@ -125,8 +124,6 @@ $('.activities label input:checkbox').change(function () {
     }
 });
 
-//add an ID to payment section so it can be accessed easily
-$('.activities').next().attr('id', 'payment-info')
 
 //payment section variables
 var $paypal = ('#payment-info div:nth-child(5)');
@@ -166,108 +163,141 @@ $('#name, #mail, #cc-num, #zip, #cvv').keyup(function () {
     }
 });
 
+//PAYMENT VALIDATION
+
+//add an ID to payment section so it can be accessed easily
+$('.activities').next().attr('id', 'payment-info')
+
+//create a div for warning messages
+$('#payment-info').append('<div id="errorMessageContainer"></div>');
+
+//functions to check the payment section
 function checkName() {
     nameLength = document.getElementById('name').value.length;
     if (nameLength <= 1) {    
         event.preventDefault();
-        if (y === 0) {
-            $('#name').prev().append('<p class="invalidText nameInput">' + "Please enter your name." + '</p>');
-            y += 1
-            return false;
-        } else {
-            return false;
-        }
+        if (b === 0) {
+        name.after("<p class='invalidText nameInput'>Please enter a valid name.</p>");
+        b += 1;
+        } 
     } else {
-        y = 0;
+        b = 0;
         $('.nameInput').remove();
-        return true;
     }
 }
 
 function checkMail() {
-    var email = $('#mail');
+    
     var emailValue = $(email).val()
     if (validateEmail(emailValue) === false) {
         event.preventDefault();
-        if (z === 0) {
+        if (c === 0) {
             email.prev().append('<p class="invalidText emailInput">' + "Please enter your email." + '</p>');
-            z += 1;
-            return false;
+            c += 1;
         }
     } else {
-        z = 0;
+        c = 0;
         $('.emailInput').remove();
-        return true;
     }
 }
 
 function checkActivity() {
     if ($('.activities input[type=checkbox]:checked').length) {
-        b = 0
+        d = 0
         $('.activities p').removeClass("invalidText");
-        return true;
     } else {
-        if (b === 0) {
-            b += 1
+        if (d === 0) {
+            d += 1
             $('.activities').append('<p class="invalidText">' + "Please choose at least one activity." + '</p>');
-            return false;
         }
     }
 }
 
-function checkPayment() {
-    selectedPayment = document.getElementById('payment').value;
-    console.log(selectedPayment);
-    if (selectedPayment === 'credit-card' || selectedPayment === 'select_method' ) {
-        if ($creditNumberLength === 0) {
+function checkZip() {
+    var $creditZip = $('#zip').val();
+    var $creditZipLength = $('#zip').val().length;
+    if ($creditZipLength !== 5 || isNaN($creditZip)) {
             event.preventDefault();
-            if (x === 0) {
-                $('#exp-year').parent().append('<p class="invalidText noNumber">' + "Please enter a credit card number" + '</p>');
-                x += 1;
+            if (j === 0) {
+                $('#errorMessageContainer').append('<p class="invalidText" id="creditZip">' + "Please enter a valid zip code." + '</p>');
+                j += 1;
             }
         } else {
-            x = 0;
-            if ($creditNumberLength >= 13 && $creditNumberLength <= 16 && !isNaN($creditNumber)) {
-                $('.creditNumber').remove()
-                c = 0;
-            } else {
-                event.preventDefault();
-                if (c === 0) {
-                    $('.noNumber').remove()
-                    $('#exp-year').parent().append('<p class="invalidText creditNumber">' + "Please enter a credit card number between 13 and 16 digits." + '</p>');
-                    c += 1;
-                }
-            }
+            j = 0;
+            $('#creditZip').remove()
         }
-        //zipcode validation
-        if ($creditZipLength !== 5 || isNaN($creditZip)) {
-            event.preventDefault();
-            if (d === 0) {
-                $('#exp-year').parent().append('<p class="invalidText creditZip">' + "Please enter a valid zip code." + '</p>');
-                d += 1;
-            }
-        } else {
-            d = 0;
-            $('.creditZip').remove()
-        }
-        //CVV validation
+}
+
+function checkCvv() {
+    var $creditCvv = $('#cvv').val();
+    var $creditCvvLength = $('#cvv').val().length;
         if ($creditCvvLength !== 3 || isNaN($creditCvv)) {
-            event.preventDefault();
+        event.preventDefault();
             if (e === 0) {
-                $('#exp-year').parent().append('<p class="invalidText creditCvv">' + "Please enter a valid CVV number." + '</p>');
+                $('#errorMessageContainer').append('<p class="invalidText" id="creditCvv">' + "Please enter a valid CVV number." + '</p>');
                 e += 1;
                 return false;
             }
         } else {
             e = 0;
-            $('.creditCvv').remove();
+            $('#creditCvv').remove();
         }
-    } 
 }
 
+function checkPayment() {
+
+    var selectedPayment = document.getElementById('payment').value;
+    if (selectedPayment === 'select_method') {
+        event.preventDefault();
+            if (f === 0 ) {
+                $('#errorMessageContainer').append("<p class='invalidText' id='noPayment'>Please select a payment type.</p>");
+            f += 1
+            }
+    } else {
+        f = 0;
+        $('#noPayment').remove();
+    }
+}  
+
+function checkCard() {
+
+    let selectedPayment = document.getElementById('payment').value;
+    let creditCardInput = $('#cc-num').val();
+    let creditCardInputLength = $('#cc-num').val().length;  
+
+    if (selectedPayment === 'credit card' ) {
+      if (creditCardInputLength > 0){
+        //remove no number error in case it appeared last try
+        g = 0;
+        $('#noCCNum').remove();
+        //if the credit number was entered correctly remove error and check zip and cvv.
+        if (creditCardInputLength >= 13 && creditCardInputLength <= 16 && !isNaN(creditCardInput)) {
+            $('#creditNumber').remove();
+            h = 0;
+        } else {
+            event.preventDefault();
+            console.log(e);
+            if (h === 0) {
+                $('#errorMessageContainer').append('<p class="invalidText" id="creditNumber">Please enter a credit card number between 13 and 16 digits</p>');
+                h += 1;
+            }
+        }
+      } else {
+          event.preventDefault();
+          if (g === 0) {
+              $('#errorMessageContainer').append("<p class='invalidText' id='noCCNum'>Please enter a credit card.</p>");
+          g += 1;
+          } 
+      }
+      checkZip();
+      checkCvv();
+}
+}
+    
 $('button').on('click', function () {
     checkName();
     checkMail();
     checkActivity();
     checkPayment();
+    checkCard();
 });
